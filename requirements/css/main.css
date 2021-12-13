@@ -150,16 +150,29 @@ iframe {
 .container-login100 {
   width: 100%;  
   min-height: 100vh;
-  /* display: -webkit-box; */
-  /* display: -webkit-flex; */
+  display: -webkit-box;
+  display: -webkit-flex;
   display: -moz-box;
   display: -ms-flexbox;
-  /* display: flex; */
-  /* flex-wrap: wrap; */
+  display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   align-items: center;
   padding: 15px;
 
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  position: relative;
+  z-index: 1;  
+}
+
+.container-login200 {
+  width: 100%;  
+  min-height: 100vh;
+  justify-content: center;
+  align-items: center;
+  padding: 15px;
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
@@ -217,7 +230,7 @@ iframe {
 
 .login100-form-title {
   font-family: Ubuntu-Bold;
-  font-size: 28px;
+  font-size: 35px;
   color: #fff;
   line-height: 1.2;
   text-align: center;

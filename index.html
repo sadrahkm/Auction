@@ -1,19 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 	<title>Product auction project</title>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-<!--===============================================================================================-->
+	<!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="requirements/fonts/Linearicons-Free-v1.0.0/icon-font.min.css">
-<!--===============================================================================================-->
+	<!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="requirements/css/util.css">
 	<link rel="stylesheet" type="text/css" href="requirements/css/main.css">
-<!--===============================================================================================-->
+	<!--===============================================================================================-->
 </head>
+
 <body>
-  
-	<div id="login_page_id" class="limiter" hidden >
+
+	<div hidden id="login_page" class="limiter" >
 		<div class="container-login100" style="background-image: url('requirements/images/bg-01.jpg');">
 			<div class="wrap-login100 p-t-30 p-b-50">
 				<span class="login100-form-title p-b-41">
@@ -21,27 +23,27 @@
 				</span>
 				<form class="login100-form validate-form p-b-33 p-t-5">
 
-					<div class="wrap-input100 validate-input" data-validate = "Enter username">
-						<input id="username_id" class="input100" type="text" name="username" placeholder="User name">
+					<div class="wrap-input100 validate-input" data-validate="Enter username">
+						<input id="username" class="input100" type="text" name="username" placeholder="User name">
 						<span class="focus-input100" data-placeholder="&#xe82a;"></span>
 					</div>
 
 					<div class="wrap-input100 validate-input" data-validate="Enter password">
-						<input id="password_id" class="input100" type="password" name="pass" placeholder="Password">
+						<input id="password" class="input100" type="password" name="pass" placeholder="Password">
 						<span class="focus-input100" data-placeholder="&#xe80f;"></span>
 					</div>
 
 					<div class="container-login100-form-btn m-t-32">
-						<button id="submit_account_id" class="login100-form-btn">
+						<button id="login-Btn" class="login100-form-btn">
 							ورود
 						</button>
 					</div>
 				</form>
 			</div>
 		</div>
-  </div>
+	</div>
 
-  <div class="container-login100" style="background-image: url('requirements/images/bg-01.jpg');" >
+  <div class="container-login200" style="background-image: url('requirements/images/bg-01.jpg');" >
 	<div class="card1">
 		<img id="product_image_id" src="requirements/images/headPhone.jpg" alt="Denim Jeans" style="width:100%">
 		<h1 id="product_name_id">هدفون بی سیم</h1>
@@ -79,5 +81,12 @@
 		  </table>
 	</div>
   </div>
+
+  <script src="https://code.jquery.com/jquery-3.3.1.js"
+  integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="./static/main.js"></script>
+
 </body>
+
 </html>
