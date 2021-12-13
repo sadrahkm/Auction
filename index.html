@@ -13,11 +13,11 @@
 </head>
 <body>
   
-	<div id="login_page_id" class="limiter">
+	<div id="login_page_id" class="limiter" hidden >
 		<div class="container-login100" style="background-image: url('requirements/images/bg-01.jpg');">
 			<div class="wrap-login100 p-t-30 p-b-50">
 				<span class="login100-form-title p-b-41">
-					LOGIN TO AUCTION PAGE
+					ورود به صفحه مزایده
 				</span>
 				<form class="login100-form validate-form p-b-33 p-t-5">
 
@@ -32,19 +32,52 @@
 					</div>
 
 					<div class="container-login100-form-btn m-t-32">
-						<button id="submit_id" class="login100-form-btn">
-							Login
+						<button id="submit_account_id" class="login100-form-btn">
+							ورود
 						</button>
 					</div>
 				</form>
 			</div>
 		</div>
   </div>
-  
-  
-	
-	
-	
 
+  <div class="container-login100" style="background-image: url('requirements/images/bg-01.jpg');" >
+	<div class="card1">
+		<img id="product_image_id" src="requirements/images/headPhone.jpg" alt="Denim Jeans" style="width:100%">
+		<h1 id="product_name_id">هدفون بی سیم</h1>
+		<p id="base_price_id" class="price1">قیمت پایه : 300 هزار تومان</p>
+		<p id="description_id">ساخت کشور چین / دارای گرانتی یک ساله </p>
+		<p><button id="start_auction_id">مزایده هنوز آغاز نشده است</button></p>
+	
+		<p style="margin-top: 10px;"><button id="remaining_time_id" style="background-color: blue;">مدت زمان باقی مانده : 00:00</button></p>
+		<div style="margin-top: 10px;">
+		
+			<form action="/action_page.php" class="myDiv">
+				<input id="price_value_id" class="input_text" type="text" id="lname" name="lastname" placeholder="قیمت پیشنهادی به تومان [مثال : 500000]">
+				<input id="submit_price_id" class="input_sub" type="submit" value="ارسال پیشنهاد">
+			</form>
+		</div>
+	</div>
+	<div class="costomer_table">
+		<table id="customers">
+			<tr>
+			  <th>نام مشتری</th>
+			  <th>قیمت پیشنهاد شده</th>
+			</tr>
+			<tr>
+			  <td>ناصر فرج زاده</td>
+			  <td>100000</td>
+			</tr>
+			<tr>
+			  <td>صدرا حکیم</td>
+			  <td>200000</td>
+			</tr>
+			<tr>
+			  <td>صبا هنرمند</td>
+			  <td>300000</td>
+			</tr>
+		  </table>
+	</div>
+  </div>
 </body>
 </html>
