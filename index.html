@@ -6,17 +6,17 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="requirements/fonts/Linearicons-Free-v1.0.0/icon-font.min.css">
+	<link rel="stylesheet" type="text/css" href="static/requirements/fonts/Linearicons-Free-v1.0.0/icon-font.min.css">
 	<!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="requirements/css/util.css">
-	<link rel="stylesheet" type="text/css" href="requirements/css/main.css">
+	<link rel="stylesheet" type="text/css" href="static/requirements/css/util.css">
+	<link rel="stylesheet" type="text/css" href="static/requirements/css/main.css">
 	<!--===============================================================================================-->
 </head>
 
 <body>
 
-	<div hidden id="login_page" class="limiter" >
-		<div class="container-login100" style="background-image: url('requirements/images/bg-01.jpg');">
+	<div id="login_page" class="limiter" >
+		<div class="container-login100" style="background-image: url('static/requirements/images/bg-01.jpg');">
 			<div class="wrap-login100 p-t-30 p-b-50">
 				<span class="login100-form-title p-b-41">
 					ورود به صفحه مزایده
@@ -43,12 +43,12 @@
 		</div>
 	</div>
 
-  <div class="container-login200" style="background-image: url('requirements/images/bg-01.jpg');" >
+  <div id="auction_page" class="container-login200" style="background-image: url('static/requirements/images/bg-01.jpg'); display: none;" >
 	<div class="card1">
-		<img id="product_image_id" src="requirements/images/headPhone.jpg" alt="Denim Jeans" style="width:100%">
-		<h1 id="product_name_id">هدفون بی سیم</h1>
-		<p id="base_price_id" class="price1">قیمت پایه : 300 هزار تومان</p>
-		<p id="description_id">ساخت کشور چین / دارای گرانتی یک ساله </p>
+		<img id="product_image" src="static/requirements/images/headPhone.jpg" alt="Denim Jeans" style="width:100%">
+		<h1 id="product_name">هدفون بی سیم</h1>
+		<p id="base_price" class="price1">قیمت پایه : 300 هزار تومان</p>
+		<p id="description">ساخت کشور چین / دارای گرانتی یک ساله </p>
 		<p><button id="start_auction_id">مزایده هنوز آغاز نشده است</button></p>
 	
 		<p style="margin-top: 10px;"><button id="remaining_time_id" style="background-color: blue;">مدت زمان باقی مانده : 00:00</button></p>

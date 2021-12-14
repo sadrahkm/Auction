@@ -16,13 +16,18 @@ $(document).ready(function () {
   // ----------------------------------------------
 
   socket.on("successLogin", () => {
-    $("#login_page").css("display", "block");
-    $("#auction-page").css("display", "none");
+    $("#login_page").css("display", "none");
+    $("#auction_page").css("display", "block");
+  });
+
+  socket.on("wrongLogin", () => {
+    alert("Your data is wrong!")
   });
 
   socket.on("callNewProduct", (data) => {
-    $("image").attr("src", data.image);
-    $("price").text(data.price);
-    $("description").text(data.description);
+    $("#product_image").attr("src", data.image);
+    $("#product_name").text(data.name);
+    $("#base_price").text(data.price);
+    $("#description").text(data.description);
   });
 });
