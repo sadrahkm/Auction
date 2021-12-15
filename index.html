@@ -15,7 +15,7 @@
 
 <body>
 
-	<div id="login_page" class="limiter" >
+	<div id="login_page" class="limiter">
 		<div class="container-login100" style="background-image: url('static/requirements/images/bg-01.jpg');">
 			<div class="wrap-login100 p-t-30 p-b-50">
 				<span class="login100-form-title p-b-41">
@@ -43,49 +43,57 @@
 		</div>
 	</div>
 
-  <div id="auction_page" class="container-login200" style="background-image: url('static/requirements/images/bg-01.jpg'); display: none;" >
-	<div class="card1">
-		<img id="product_image" src="static/requirements/images/headPhone.jpg" alt="Denim Jeans" style="width:100%">
-		<h1 id="product_name">هدفون بی سیم</h1>
-		<p id="base_price" class="price1">قیمت پایه : 300 هزار تومان</p>
-		<p id="description">ساخت کشور چین / دارای گرانتی یک ساله </p>
-		<p><button id="start_auction_id">مزایده هنوز آغاز نشده است</button></p>
-	
-		<p style="margin-top: 10px;"><button id="remaining_time" style="background-color: blue;">مدت زمان باقی مانده : 00:00</button></p>
-		<div style="margin-top: 10px;">
-		
-			<form id="price_form" class="myDiv">
-				<input id="price_value_id" class="input_text" type="text" name="lastname" placeholder="قیمت پیشنهادی به تومان [مثال : 500000]">
-				<input id="submit_price_id" class="input_sub" type="submit" value="ارسال پیشنهاد">
-			</form>
-		</div>
-	</div>
-	<div class="costomer_table">
-		<table id="customers">
-			<tr>
-			  <th>نام مشتری</th>
-			  <th>قیمت پیشنهاد شده</th>
-			</tr>
-			<tr>
-			  <td>ناصر فرج زاده</td>
-			  <td>100000</td>
-			</tr>
-			<tr>
-			  <td>صدرا حکیم</td>
-			  <td>200000</td>
-			</tr>
-			<tr>
-			  <td>صبا هنرمند</td>
-			  <td>300000</td>
-			</tr>
-		  </table>
-	</div>
-  </div>
+	<div id="auction_page" class="container-login200"
+		style="background-image: url('static/requirements/images/bg-01.jpg'); display: none;">
+		<div class="card1">
+			<img id="product_image" src="static/requirements/images/headPhone.jpg" alt="Denim Jeans" style="width:100%">
+			<h1 id="product_name">هدفون بی سیم</h1>
+			<p id="base_price" class="price1">قیمت پایه : 300 هزار تومان</p>
+			<p id="description">ساخت کشور چین / دارای گرانتی یک ساله </p>
+			<p><button id="start_auction_id" class="text-style" style="background-color: rgb(156, 7, 44)">مزایده هنوز
+					آغاز نشده است</button></p>
 
-  <script src="https://code.jquery.com/jquery-3.3.1.js"
-  integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
-<script src="/socket.io/socket.io.js"></script>
-<script src="./static/main.js"></script>
+			<div style="background-color: blue; margin-top: 10px;">
+				<p class="text-style" id="remaining_time"> 00:00</p>
+				<p class="text-style">مدت زمان باقی مانده :</p>
+			</div>
+			<!-- <p style="margin-top: 10px;"><button id="remaining_time" style="background-color: blue;">مدت زمان باقی مانده
+					: 00:00</button></p> -->
+			<div style="margin-top: 10px;">
+
+				<form id="price_form" class="myDiv">
+					<input id="price_value_id" class="input_text" type="text" name="lastname"
+						placeholder="قیمت پیشنهادی به تومان [مثال : 500000]">
+					<input id="submit_price_id" class="input_sub" type="submit" value="ارسال پیشنهاد">
+				</form>
+			</div>
+		</div>
+		<div class="costomer_table">
+			<table id="customers">
+				<tbody>
+					<tr>
+						<th>نام مشتری</th>
+						<th>قیمت پیشنهاد شده</th>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<div id="modal-id" class="modal">
+			<div class="modal-content">
+				<span class="close">&times;</span>
+				<div class="winner">
+					<p class="winner-name"></p>
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+	<script src="https://code.jquery.com/jquery-3.3.1.js"
+		integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="./static/main.js"></script>
 
 </body>
 
