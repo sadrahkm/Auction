@@ -2,6 +2,23 @@
 $(document).ready(function () {
   const socket = io.connect("http://localhost:3000/");
 
+    function updateTimer(duration, display) {
+        let timer = duration, minutes, seconds;
+        // setInterval(function () {
+            minutes = parseInt(timer / 60, 10);
+            seconds = parseInt(timer % 60, 10);
+
+            // minutes = minutes < 10 ? "0" + minutes : minutes;
+            // seconds = seconds < 10 ? "0" + seconds : seconds;
+
+            display.text(minutes + ":" + seconds);
+
+            // if (--timer < 0) {
+            //     timer = duration;
+            // }
+        // }, 1000);
+    }
+
   $("#login-Btn").click((event) => {
     event.preventDefault();
     let username = $("#username").val();
@@ -10,18 +27,19 @@ $(document).ready(function () {
       alert("Oops! Please, enter username and password⚠️")
     }
     else {
+      localStorage.setItem('name', username);
       socket.emit("login", { name: username, password: password })
     }
   });
 
-  $("submit_price_id").click((event) => {
+  $("#price_form").submit((event) => {
     event.preventDefault();
-    let proposedPrice = $("price_value_id").val();
-    if (proposedPrice === "") {
+    let proposedPrice = $("#price_value_id").val();
+    if (proposedPrice === "")
       alert("Oops! Please, enter your proposed price⚠️");
-    }
     else {
-      socket.emit("getNewPrice", { price: proposedPrice });
+      socket.emit("getNewPrice", {name: localStorage.getItem('name'), price: proposedPrice});
+      $("#price_value_id").val('')
     }
   })
 
@@ -44,4 +62,10 @@ $(document).ready(function () {
     $("#start_auction_id").html("مزایده آغاز شد");
     $("#start_auction_id").css("background-color", "#32CD32");
   });
+
+  socket.on('startTheTimer', (data) => {
+      let durationInSeconds = data.duration;
+      let display = $("#remaining_time");
+      updateTimer(durationInSeconds, display);
+  })
 });
