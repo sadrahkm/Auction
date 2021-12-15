@@ -506,18 +506,19 @@ iframe {
   font-size: 22px;
 }
 
-.card1 button {
+.text-style {
   border: none;
   outline: 0;
-  padding: 12px;
+  padding: 12px 0px;
   color: white;
-  background-color: rgb(156, 7, 44);
+  /* background-color: rgb(156, 7, 44); */
   text-align: center;
   cursor: pointer;
   width: 100%;
   font-size: 18px;
+  display: inline;
+  direction: rtl;
 }
-
 
 
 .sendBtn{
@@ -586,4 +587,55 @@ iframe {
 .costomer_table{
   margin-top: 5%;
   text-align: center;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  top: 30%;
+  width: 100rem;
+  height: 13rem;
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: #ffffff;
+  margin: auto;
+  padding: 20px;
+  border-radius: 11px;
+  width: 30rem;
+  height: 100%;
+}
+
+/* The Close Button */
+.close {
+  color: #aaaaaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.page-after-Determining-winner{
+  background-color: #b54e67;
+  background-blend-mode: screen;
+}
+.winner{
+  display: flex;
+  justify-content: center;
+}
+
+.winner-name{
+  font-size: 30px;
+    padding-top: 80px;
+    color: currentcolor;
+    font-family: system-ui;
+    direction: rtl;
+    font-weight: 700;
+    color: black;
 }
