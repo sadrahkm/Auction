@@ -1,0 +1,9 @@
+CREATE TABLE auction.users ( id INT NOT NULL , name VARCHAR(255) NOT NULL , password VARCHAR(255) NOT NULL , PRIMARY KEY (id)) ENGINE = InnoDB;
+ALTER TABLE users ADD UNIQUE(name);
+
+CREATE TABLE auction.products ( id INT NOT NULL , file VARCHAR(255) NOT NULL , price int(11) NOT NULL , description text NOT NULL , name varchar(255) NOT NULL , PRIMARY KEY (id)) ENGINE = InnoDB;
+ALTER TABLE products ADD UNIQUE(file);
+
+INSERT INTO `users` (`id`, `name`, `password`) VALUES ('0', 'sadra', '123'), ('1', 'saba', '123'), ('2', 'naser', '123');
+
+INSERT INTO `products` (`id`, `file`, `price`, `description`, `name`) VALUES ('0', 'sadra.jpg', '10000', 'Test product description', 'Product no 1');
