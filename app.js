@@ -29,8 +29,10 @@ let customers = [];
 let information = [];
 let isTimerWorking = false;
 let roundCounter = 0;
-const AUCTION_TIME = 60; // minutes
-const AUCTION_ROUNDS = 6;
+const AUCTION_TIME = 1; // minutes
+const AUCTION_ROUNDS = 2;
+const ROUND_TIME = AUCTION_TIME / AUCTION_ROUNDS; // minutes
+const WAITING_TIME = 10; // seconds
 db.connect(function (err) {
     if (err) throw err;
     db.query("SELECT * FROM users", function (err, dbUsers, fields) {
@@ -63,36 +65,51 @@ io.on("connection", (socket) => {
         });
     }
 
-    function startTheNextRound() {
+    function waitForTheNextRound() {
         io.sockets.emit('waitForTheNextRound'); // TODO : Front - wait about 30 seconds
+        return startTheTimer(WAITING_TIME);
+    }
+
+    async function startTheNextRound() {
         sortInformationList();
         io.sockets.emit('informationList', {information: information}); // TODO : Front
-        setTimeout(() => {
-            // Next round will be started
-            startTheTimer();
-        }, 30000)
+        information = [];
+        await waitForTheNextRound();
+        startTheRound();
     }
 
     function endTheAuction() {
-        // Announce the winner
+        const {name, price} = information.reduce((prev, current) => (prev.price > current.price) ? prev : current)
+        console.log(information);
+        console.log(name, price)
+        io.sockets.emit('announcingTheWinner', {name: name, price: price});
     }
 
-    function startTheTimer() {
-        let countdown = AUCTION_TIME / AUCTION_ROUNDS * 60;
+    function startTheTimer(duration) {
+        let countdown = duration;
         isTimerWorking = true;
-        let intervalId = setInterval(() => {
-            if (countdown <= 0) {
-                clearInterval(intervalId);
-                isTimerWorking = false;
-                roundCounter++;
-                if (roundCounter > AUCTION_ROUNDS)
-                    endTheAuction()
-                else
-                    startTheNextRound();
-            }
+        return new Promise((resolve) => {
+            let intervalId = setInterval(() => {
+                if (countdown <= 0) {
+                    clearInterval(intervalId);
+                    isTimerWorking = false;
+                    resolve();
+                    return;
+                }
 
-            io.sockets.emit("startTheTimer", {duration: countdown--});
-        }, 1000);
+                io.sockets.emit("startTheTimer", {duration: countdown--});
+            }, 1000);
+        });
+    }
+
+    async function startTheRound() {
+        io.sockets.emit("startTheRound");
+        await startTheTimer(ROUND_TIME * 60);
+        roundCounter++;
+        if (roundCounter >= AUCTION_ROUNDS)
+            endTheAuction()
+        else
+            startTheNextRound();
     }
 
     function sendNewProduct() {
@@ -108,7 +125,7 @@ io.on("connection", (socket) => {
 
     function initializeAuction() {
         sendNewProduct();
-        startTheTimer();
+        startTheRound();
     }
 
     function findUser(name, password) {

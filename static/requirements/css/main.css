@@ -593,8 +593,10 @@ iframe {
   display: none;
   position: fixed;
   top: 30%;
-  width: 100%;
-  height: 13rem;
+  left: 0;
+  right: 0;
+  width: 34%;
+  margin: 0 auto;
 }
 
 /* Modal Content */
@@ -603,7 +605,6 @@ iframe {
   margin: auto;
   padding: 20px;
   border-radius: 11px;
-  width: 30rem;
   height: 100%;
 }
 
@@ -632,7 +633,7 @@ iframe {
 
 .winner-name{
   font-size: 30px;
-    padding-top: 80px;
+    padding: 65px 0;
     color: currentcolor;
     font-family: system-ui;
     direction: rtl;
