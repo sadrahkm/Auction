@@ -1,6 +1,7 @@
 /* eslint-disable no-undef */
 $(document).ready(function () {
   const socket = io.connect("http://localhost:3000/");
+  let isPricingOpen = false;
 
   function updateTimer(duration, display) {
     let timer = duration, minutes, seconds;
@@ -34,16 +35,19 @@ $(document).ready(function () {
 
   $("#price_form").submit((event) => {
     event.preventDefault();
-    let proposedPrice = $("#price_value_id").val();
-    if (proposedPrice === "")
-      alert("Oops! Please, enter your proposed price⚠️");
-    else {
-      socket.emit("getNewPrice", {
-        name: localStorage.getItem('name'),
-        price: proposedPrice
-      });
-      $("#price_value_id").val('');
-    }
+    if (isPricingOpen){
+      let proposedPrice = $("#price_value_id").val();
+      if (proposedPrice === "")
+        alert("Oops! Please, enter your proposed price⚠️");
+      else {
+        socket.emit("getNewPrice", {
+          name: localStorage.getItem('name'),
+          price: proposedPrice
+        });
+        $("#price_value_id").val('');
+      }
+    } else
+      alert("Please wait")
   })
 
   // ----------------------------------------------
@@ -62,8 +66,6 @@ $(document).ready(function () {
     $("#product_name").text(data.name);
     $("#base_price").text(data.price);
     $("#description").text(data.description);
-    $("#start_auction_id").html("مزایده آغاز شد");
-    $("#start_auction_id").css("background-color", "#32CD32");
   });
 
   socket.on('startTheTimer', (data) => {
@@ -73,19 +75,31 @@ $(document).ready(function () {
   });
 
   socket.on("outOfTime", () => {
-    alert("Sorry! The auction is over😞");
+    alert("Sorry! Round hasn't been started 😞");
   });
 
   socket.on("userNotLoggedIn", () => {
     alert("⚠️You are not logged in!");
   });
 
+  socket.on("waitForTheNextRound", () => {
+    isPricingOpen = false;
+    $("#start_auction_id").html("برای شروع دور بعدی منتظر بمانید");
+    $("#start_auction_id").css("background-color", "#CDC849");
+  });
+
+  socket.on("startTheRound", () => {
+    isPricingOpen = true;
+    $("#start_auction_id").html("مزایده آغاز شد");
+    $("#start_auction_id").css("background-color", "#32CD32");
+  })
+
   socket.on("informationList", (data) => {
     for (var i = 0; i < data.information.length; i++) {
       $('#customers > tbody:last-child').append(`
       <tr>
       <td>${data.information[i].name}</td>
-      <td id="price">${data.information[i].price}</td>
+      <td id="price">${data.information[i].price}</td> // TODO: ID Probelm
       </tr>
       `);
     }
