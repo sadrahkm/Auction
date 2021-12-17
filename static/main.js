@@ -35,7 +35,7 @@ $(document).ready(function () {
 
   $("#price_form").submit((event) => {
     event.preventDefault();
-    if (isPricingOpen){
+    if (isPricingOpen) {
       let proposedPrice = $("#price_value_id").val();
       if (proposedPrice === "")
         alert("Oops! Please, enter your proposed price⚠️");
@@ -95,11 +95,13 @@ $(document).ready(function () {
   })
 
   socket.on("informationList", (data) => {
+    $(".customerRow").remove();
+    socket.emit('informationReceived');
     for (var i = 0; i < data.information.length; i++) {
       $('#customers > tbody:last-child').append(`
-      <tr>
+      <tr class = "customerRow">
       <td>${data.information[i].name}</td>
-      <td id="price">${data.information[i].price}</td> // TODO: ID Probelm
+      <td>${data.information[i].price}</td>
       </tr>
       `);
     }
