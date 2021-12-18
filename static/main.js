@@ -118,4 +118,16 @@ $(document).ready(function () {
     $("#start_auction_id").html("!مزایده تمام شد");
     $("#start_auction_id").css("background-color", "red");
   });
+
+  socket.on("exitedUserCannotLogin", () => {
+    alert("You cannot login anymore!");
+  });
+
+  socket.on('forceDisconnect', () => {
+    window.location.reload();
+  });
+  socket.on('minNumberOfUsers', () => {
+    alert('The auction needs at least 3 people. Auction stopped!');
+    window.location.reload();
+  })
 });
