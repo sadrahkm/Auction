@@ -1,5 +1,5 @@
 const express = require("express");
-var mysql = require('mysql');
+let mysql = require('mysql');
 const app = express();
 const server = require("http").createServer(app);
 const io = require("socket.io")(server, {
@@ -29,8 +29,12 @@ let customers = [];
 let information = [];
 let isTimerWorking = false;
 let roundCounter = 0;
+let exitedUsers = [];
+let usersReceivedInformation = [];
+let intervalId;
 const AUCTION_TIME = 1; // minutes
 const AUCTION_ROUNDS = 2;
+const MIN_NUMBER_OF_USERS = 2;
 const ROUND_TIME = AUCTION_TIME / AUCTION_ROUNDS; // minutes
 const WAITING_TIME = 10; // seconds
 db.connect(function (err) {
@@ -66,22 +70,31 @@ io.on("connection", (socket) => {
     }
 
     function waitForTheNextRound() {
-        io.sockets.emit('waitForTheNextRound'); // TODO : Front - wait about 30 seconds
+        io.sockets.emit('waitForTheNextRound');
         return startTheTimer(WAITING_TIME);
     }
 
+    function sendInformationList() {
+        io.sockets.emit('informationList', {information: information});
+    }
+
+    // TODO : HAndle if there is no one there anymore
     async function startTheNextRound() {
+        let difference = customers.filter(user => !information.some((info) => user.name === info.name));
+        difference.forEach((item) => {
+            io.sockets.to(item.id).emit('forceDisconnect');
+        });
         sortInformationList();
-        io.sockets.emit('informationList', {information: information}); // TODO : Front
+        sendInformationList();
         information = [];
         await waitForTheNextRound();
         startTheRound();
     }
 
     function endTheAuction() {
-        const {name, price} = information.reduce((prev, current) => (prev.price > current.price) ? prev : current)
-        console.log(information);
-        console.log(name, price)
+        sortInformationList();
+        sendInformationList();
+        let {name, price} = information[information.length - 1];
         io.sockets.emit('announcingTheWinner', {name: name, price: price});
     }
 
@@ -89,7 +102,7 @@ io.on("connection", (socket) => {
         let countdown = duration;
         isTimerWorking = true;
         return new Promise((resolve) => {
-            let intervalId = setInterval(() => {
+            intervalId = setInterval(() => {
                 if (countdown <= 0) {
                     clearInterval(intervalId);
                     isTimerWorking = false;
@@ -113,6 +126,7 @@ io.on("connection", (socket) => {
     }
 
     function sendNewProduct() {
+        // io.sockets.to(customers[0].id).emit('forceDisconnect');
         let product = getRandomProduct();
         let imageUrl = "/static/products/" + product.file;
         io.sockets.emit("callNewProduct", {
@@ -128,32 +142,77 @@ io.on("connection", (socket) => {
         startTheRound();
     }
 
-    function findUser(name, password) {
+    function findUserByNamePass(name, password) {
         return users.find((item) => {
             if (item.name === name && item.password === password)
                 return item;
         });
     }
 
+    function findUserById(arr, id) {
+        let index = arr.findIndex((item) => {
+            return item.id === id;
+        });
+        return [arr[index], index];
+    }
+
+
     socket.on("login", (data) => {
-        let {name, password} = data;
-        let currentUser = findUser(name, password);
-        if (currentUser !== undefined) {
-            customers.push({name: currentUser.name});
-            socket.emit("successLogin");
-            if (customers.length >= 2)  // TODO : Change this :)
-                initializeAuction();
+        if (!isUserExited(data.name)) {
+            let {name, password} = data;
+            let user = findUserByNamePass(name, password);
+            if (user !== undefined) {
+                customers.push({id: socket.id, name: user.name});
+                socket.emit("successLogin");
+                if (customers.length >= MIN_NUMBER_OF_USERS)  // TODO : Change this :)
+                    initializeAuction();
+            } else
+                socket.emit("wrongLogin");
         } else
-            socket.emit("wrongLogin");
+            socket.emit("exitedUserCannotLogin");
     });
+
+    function isUserExited(name) {
+        return exitedUsers.some((item) => {
+            return item === name;
+        });
+    }
 
     socket.on("getNewPrice", (data) => {
         if (isUserLoggedIn(data.name))
             if (isTimerWorking)
-                information.push({name: data.name, price: data.price});
+                information.push({id: socket.id, name: data.name, price: data.price});
             else
-                socket.emit('outOfTime')  // TODO: Front
+                socket.emit('outOfTime');
         else
-            socket.emit('userNotLoggedIn') // TODO: Front
+            socket.emit('userNotLoggedIn');
+    });
+
+    socket.on("disconnect", () => {
+        let user = findUserById(customers, socket.id);
+        if (user[1] !== -1 || user[0] !== undefined) { // TODO: remove from customer and information list
+            let info = findUserById(information, socket.id);
+            if (info)
+                information.splice(info[1], 1);
+            customers.splice(user[1], 1);
+            if (customers.length < MIN_NUMBER_OF_USERS) {
+                io.sockets.emit("minNumberOfUsers");
+                clearInterval(intervalId);
+            }
+            exitedUsers.push(user[0].name);
+        }
+    });
+
+    // TODO : Check this out
+    socket.on("informationReceived", () => {
+        let [user] = findUserById(customers, socket.id);
+        usersReceivedInformation.push(user);
+        let difference = customers.filter(customer => !usersReceivedInformation.some((user) => customer.name === user.name));
+        // while (difference.length !== 0)
+            setTimeout(() => {
+                difference.forEach((item) => {
+                    socket.broadcast.to(item.id).emit('informationList', {information: information});
+                });
+            }, 2000);
     });
 });
