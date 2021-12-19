@@ -34,7 +34,7 @@ let usersReceivedInformation = [];
 let intervalId;
 const AUCTION_TIME = 1; // minutes
 const AUCTION_ROUNDS = 2;
-const MIN_NUMBER_OF_USERS = 2;
+const MIN_NUMBER_OF_USERS = 3;
 const ROUND_TIME = AUCTION_TIME / AUCTION_ROUNDS; // minutes
 const WAITING_TIME = 10; // seconds
 db.connect(function (err) {
@@ -167,6 +167,7 @@ io.on("connection", (socket) => {
             if (user !== undefined) {
                 customers.push({id: socket.id, name: user.name});
                 socket.emit("successLogin");
+                if (customers.length > MIN_NUMBER_OF_USERS)
                 sendNewProduct(false);
                 if (customers.length === MIN_NUMBER_OF_USERS)
                     initializeAuction();
