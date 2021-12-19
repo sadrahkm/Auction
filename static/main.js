@@ -28,7 +28,6 @@ $(document).ready(function () {
       alert("⚠️Oops! Please, enter username and password");
     }
     else {
-      localStorage.setItem('name', username);
       socket.emit("login", { name: username, password: password });
     }
   });
@@ -41,7 +40,6 @@ $(document).ready(function () {
         alert("Oops! Please, enter your proposed price⚠️");
       else {
         socket.emit("getNewPrice", {
-          name: localStorage.getItem('name'),
           price: proposedPrice
         });
         $("#price_value_id").val('');

@@ -109,7 +109,6 @@ io.on("connection", (socket) => {
                     resolve();
                     return;
                 }
-
                 io.sockets.emit("startTheTimer", {duration: countdown--});
             }, 1000);
         });
@@ -184,9 +183,10 @@ io.on("connection", (socket) => {
     }
 
     socket.on("getNewPrice", (data) => {
-        if (isUserLoggedIn(data.name))
+        let [user, index] = findUserById(customers, socket.id);
+        if (isUserLoggedIn(user.name))
             if (isTimerWorking)
-                information.push({id: socket.id, name: data.name, price: data.price});
+                information.push({id: socket.id, name: user.name, price: data.price});
             else
                 socket.emit('outOfTime');
         else
