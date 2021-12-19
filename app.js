@@ -125,16 +125,20 @@ io.on("connection", (socket) => {
             startTheNextRound();
     }
 
-    function sendNewProduct() {
+    function sendNewProduct(isBroadcast = true) {
         // io.sockets.to(customers[0].id).emit('forceDisconnect');
         let product = getRandomProduct();
         let imageUrl = "/static/products/" + product.file;
-        io.sockets.emit("callNewProduct", {
+        let productJson = {
             image: imageUrl,
             name: product.name,
             price: product.price,
             description: product.description
-        });
+        };
+        if (isBroadcast)
+            io.sockets.emit("callNewProduct", productJson);
+        else
+            socket.emit("callNewProduct", productJson);
     }
 
     function initializeAuction() {
@@ -164,7 +168,8 @@ io.on("connection", (socket) => {
             if (user !== undefined) {
                 customers.push({id: socket.id, name: user.name});
                 socket.emit("successLogin");
-                if (customers.length >= MIN_NUMBER_OF_USERS)  // TODO : Change this :)
+                sendNewProduct(false);
+                if (customers.length === MIN_NUMBER_OF_USERS)
                     initializeAuction();
             } else
                 socket.emit("wrongLogin");
@@ -209,10 +214,10 @@ io.on("connection", (socket) => {
         usersReceivedInformation.push(user);
         let difference = customers.filter(customer => !usersReceivedInformation.some((user) => customer.name === user.name));
         // while (difference.length !== 0)
-            setTimeout(() => {
-                difference.forEach((item) => {
-                    socket.broadcast.to(item.id).emit('informationList', {information: information});
-                });
-            }, 2000);
+        //     setTimeout(() => {
+        //         difference.forEach((item) => {
+        //             socket.broadcast.to(item.id).emit('informationList', {information: information});
+        //         });
+        //     }, 2000);
     });
 });
