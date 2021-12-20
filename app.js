@@ -56,7 +56,7 @@ db.connect(function (err) {
 
 
 function getRandomProduct() {
-    return products[0];
+    return products[Math.floor(Math.random() * products.length)];
 }
 
 function isUserLoggedIn(name) {
@@ -74,19 +74,19 @@ io.on("connection", (socket) => {
     }
 
     function pingUsersNotEnteredPrice() {
-        console.log("timer : " + isTimerWorking);
+        // console.log("timer : " + isTimerWorking);
         return new Promise((resolve) => {
             setTimeout(() => {
                 setTimeout(() => {
                     isTimerWorking = false;
                     usersListNotEnteredPrice.forEach((user) => {
-                        console.log("user: " + user.successCount);
+                        // console.log("user: " + user.successCount);
                         if (user.successCount >= NUMBER_OF_PINGS / 2)
                             io.sockets.to(user.id).emit('forceDisconnect');
                         resolve();
                     });
-                    console.log("HAHAaaaaa");
-                }, 4000);
+                    // console.log("HAHAaaaaa");
+                }, 5000);
                 if (isTimerWorking) {
                     usersListNotEnteredPrice.forEach((user) => {
                         user.successCount = 0;
@@ -100,7 +100,7 @@ io.on("connection", (socket) => {
     }
 
     function checkListStatus() {
-        console.log('timer 2 : ' + isTimerWorking);
+        // console.log('timer 2 : ' + isTimerWorking);
         return new Promise((resolve) => {
             setTimeout(() => {
                 setTimeout(() => {
@@ -111,12 +111,16 @@ io.on("connection", (socket) => {
                         })
                         resolve();
                     }
-                }, 4000);
-                if (isTimerWorking && usersListNotReceived.length !== 0) {
-                    usersListNotReceived.forEach((user) => {
-                        sendInformationList(user.id);
-                    });
-                }
+                }, 5000);
+                let counter = 0;
+                let localInterval = setInterval(() => {
+                    if (++counter !== 3 && usersListNotReceived.length !== 0) {
+                        usersListNotReceived.forEach((user) => {
+                            sendInformationList(user.id);
+                        });
+                    } else
+                        clearInterval(localInterval);
+                }, 1000);
             }, 3000);
         });
     }
@@ -138,6 +142,8 @@ io.on("connection", (socket) => {
         // usersListNotEnteredPrice.forEach((item) => {
         //     io.sockets.to(item.id).emit('forceDisconnect');
         // });
+        if (information.length === 0)
+            io.sockets.emit('forceDisconnect');
         sortInformationList();
         sendInformationList();
         information = [];
@@ -146,15 +152,16 @@ io.on("connection", (socket) => {
         if (usersListNotReceived.length !== 0 || usersListNotEnteredPrice.length !== 0) {
             io.sockets.emit("waitForDelay");
             isTimerWorking = true;
-            // console.log("after")
-            // console.log(usersListNotReceived.length)
-            if (usersListNotReceived.length !== 0)
+            if (usersListNotReceived.length !== 0 && usersListNotEnteredPrice.length !== 0) {
+                await checkListStatus();
+                await pingUsersNotEnteredPrice();
+            } else if (usersListNotReceived.length !== 0)
                 await checkListStatus();
             else
                 await pingUsersNotEnteredPrice();
-            console.log("After")
+            // console.log("After")
         }
-        console.log("After 2")
+        // console.log("After 2")
         startTheRound();
     }
 
@@ -187,11 +194,11 @@ io.on("connection", (socket) => {
     }
 
     async function startTheRound() {
-        console.log("After 3")
+        // console.log("After 3")
         io.sockets.emit("startTheRound");
-        console.log("After 4")
+        // console.log("After 4")
         await startTheTimer(ROUND_TIME * 60);
-        console.log("After 5")
+        // console.log("After 5")
         roundCounter++;
         if (roundCounter >= AUCTION_ROUNDS)
             endTheAuction()
