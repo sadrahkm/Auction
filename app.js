@@ -70,6 +70,25 @@ io.on("connection", (socket) => {
         });
     }
 
+    function checkListStatus(){
+        if (usersListNotReceived.length !== 0) {
+            startTheTimer(WAITING_TIME * 2);
+            while (isTimerWorking && usersListNotReceived.length !== 0) {
+                usersListNotReceived.forEach((user) => {
+                    sendInformationList(user.id);
+                });
+                setTimeout(() => {
+                    usersListNotReceived = customers.filter(customer => !usersReceivedInformation.some((user) => customer.name === user.name));
+                }, 2000);
+            }
+            if (usersListNotReceived.length !== 0) {
+                usersListNotReceived.forEach((user) => {
+                    io.sockets.to(user.id).emit('forceDisconnect');
+                })
+            }
+        }
+    }
+
     function waitForTheNextRound() {
         io.sockets.emit('waitForTheNextRound');
         return startTheTimer(WAITING_TIME);
@@ -94,23 +113,7 @@ io.on("connection", (socket) => {
             usersListNotReceived = customers.filter(customer => !usersReceivedInformation.some((user) => customer.name === user.name));
         }, WAITING_TIME / 2);
         await waitForTheNextRound();
-        console.log(usersListNotReceived);
-        if (usersListNotReceived.length !== 0) {
-            startTheTimer(WAITING_TIME * 2);
-            while (isTimerWorking && usersListNotReceived.length !== 0) {
-                usersListNotReceived.forEach((user) => {
-                    sendInformationList(user.id);
-                });
-                setTimeout(() => {
-                    usersListNotReceived = customers.filter(customer => !usersReceivedInformation.some((user) => customer.name === user.name));
-                }, 2000);
-            }
-            if (usersListNotReceived.length !== 0) {
-                usersListNotReceived.forEach((user) => {
-                    io.sockets.to(user.id).emit('forceDisconnect');
-                })
-            }
-        }
+        checkListStatus();
         startTheRound();
     }
 
