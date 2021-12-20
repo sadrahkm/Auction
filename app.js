@@ -33,7 +33,7 @@ let roundCounter = 0;
 let exitedUsers = [];
 let usersReceivedInformation = [];
 let usersListNotReceived = [];
-let usersListNotEnteredPrice
+let usersListNotEnteredPrice = [];
 let intervalId;
 const AUCTION_TIME = 1; // minutes
 const AUCTION_ROUNDS = 2;
@@ -265,8 +265,16 @@ io.on("connection", (socket) => {
         });
     }
 
+    function isUserInNotEnterPriceList(id){
+
+    }
+
     socket.on("getNewPrice", (data) => {
+        // TODO: remove user if he's in usersNotEnteredPrice list
         let [user, index] = findUserById(customers, socket.id);
+        let [userInNotEnteredPriceList, indexNotEnteredPriceList] = findUserById(usersListNotEnteredPrice, socket.id);
+        if (userInNotEnteredPriceList === undefined || indexNotEnteredPriceList === -1)
+            usersListNotEnteredPrice.splice(indexNotEnteredPriceList, 1);
         if (isUserLoggedIn(user.name))
             if (isTimerWorking)
                 information.push({id: socket.id, name: user.name, price: data.price});
