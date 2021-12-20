@@ -31,6 +31,7 @@ let isTimerWorking = false;
 let roundCounter = 0;
 let exitedUsers = [];
 let usersReceivedInformation = [];
+let usersListNotReceived = [];
 let intervalId;
 const AUCTION_TIME = 1; // minutes
 const AUCTION_ROUNDS = 2;
@@ -74,11 +75,13 @@ io.on("connection", (socket) => {
         return startTheTimer(WAITING_TIME);
     }
 
-    function sendInformationList() {
-        io.sockets.emit('informationList', {information: information});
+    async function sendInformationList(socketId = null) {
+        if (socketId === null)
+            io.sockets.emit('informationList', {information: information});
+        else
+            io.sockets.to(socketId).emit('informationList', {information: information});
     }
 
-    // TODO : HAndle if there is no one there anymore
     async function startTheNextRound() {
         let difference = customers.filter(user => !information.some((info) => user.name === info.name));
         difference.forEach((item) => {
@@ -87,13 +90,38 @@ io.on("connection", (socket) => {
         sortInformationList();
         sendInformationList();
         information = [];
+        setTimeout(() => {
+            usersListNotReceived = customers.filter(customer => !usersReceivedInformation.some((user) => customer.name === user.name));
+        }, WAITING_TIME / 2);
         await waitForTheNextRound();
+        console.log(usersListNotReceived);
+        if (usersListNotReceived.length !== 0) {
+            startTheTimer(WAITING_TIME * 2);
+            while (isTimerWorking && usersListNotReceived.length !== 0) {
+                usersListNotReceived.forEach((user) => {
+                    sendInformationList(user.id);
+                });
+                setTimeout(() => {
+                    usersListNotReceived = customers.filter(customer => !usersReceivedInformation.some((user) => customer.name === user.name));
+                }, 2000);
+            }
+            if (usersListNotReceived.length !== 0) {
+                usersListNotReceived.forEach((user) => {
+                    io.sockets.to(user.id).emit('forceDisconnect');
+                })
+            }
+        }
         startTheRound();
     }
 
-    function endTheAuction() {
+    async function endTheAuction() { //TODO: Clean this code
+        let difference = customers.filter(user => !information.some((info) => user.name === info.name));
+        difference.forEach((item) => {
+            io.sockets.to(item.id).emit('forceDisconnect');
+        });
         sortInformationList();
         sendInformationList();
+        await waitForTheNextRound();
         let {name, price} = information[information.length - 1];
         io.sockets.emit('announcingTheWinner', {name: name, price: price});
     }
@@ -168,7 +196,7 @@ io.on("connection", (socket) => {
                 customers.push({id: socket.id, name: user.name});
                 socket.emit("successLogin");
                 if (customers.length > MIN_NUMBER_OF_USERS)
-                sendNewProduct(false);
+                    sendNewProduct(false);
                 if (customers.length === MIN_NUMBER_OF_USERS)
                     initializeAuction();
             } else
@@ -213,12 +241,5 @@ io.on("connection", (socket) => {
     socket.on("informationReceived", () => {
         let [user] = findUserById(customers, socket.id);
         usersReceivedInformation.push(user);
-        let difference = customers.filter(customer => !usersReceivedInformation.some((user) => customer.name === user.name));
-        // while (difference.length !== 0)
-        //     setTimeout(() => {
-        //         difference.forEach((item) => {
-        //             socket.broadcast.to(item.id).emit('informationList', {information: information});
-        //         });
-        //     }, 2000);
     });
 });
