@@ -265,15 +265,12 @@ io.on("connection", (socket) => {
         });
     }
 
-    function isUserInNotEnterPriceList(id){
-
-    }
 
     socket.on("getNewPrice", (data) => {
         // TODO: remove user if he's in usersNotEnteredPrice list
         let [user, index] = findUserById(customers, socket.id);
         let [userInNotEnteredPriceList, indexNotEnteredPriceList] = findUserById(usersListNotEnteredPrice, socket.id);
-        if (userInNotEnteredPriceList === undefined || indexNotEnteredPriceList === -1)
+        if (userInNotEnteredPriceList !== undefined || indexNotEnteredPriceList !== -1)
             usersListNotEnteredPrice.splice(indexNotEnteredPriceList, 1);
         if (isUserLoggedIn(user.name))
             if (isTimerWorking)
@@ -301,7 +298,7 @@ io.on("connection", (socket) => {
 
     // TODO : Check this out
     socket.on("informationReceived", () => {
-        let [user] = findUserById(customers, socket.id);
+        let [user, index] = findUserById(customers, socket.id);
         usersReceivedInformation.push(user);
         usersListNotReceived = customers.filter(customer => !usersReceivedInformation.some((user) => customer.name === user.name));
     });
