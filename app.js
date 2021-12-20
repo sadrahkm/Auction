@@ -1,6 +1,5 @@
 const express = require("express");
 let mysql = require('mysql');
-const {use} = require("express/lib/router");
 const app = express();
 const server = require("http").createServer(app);
 const io = require("socket.io")(server, {
@@ -35,6 +34,7 @@ let usersReceivedInformation = [];
 let usersListNotReceived = [];
 let usersListNotEnteredPrice = [];
 let intervalId;
+let pictureIndex = -1;
 const AUCTION_TIME = 1; // minutes
 const AUCTION_ROUNDS = 2;
 const MIN_NUMBER_OF_USERS = 3;
@@ -55,8 +55,10 @@ db.connect(function (err) {
 });
 
 
-function getRandomProduct() {
-    return products[Math.floor(Math.random() * products.length)];
+function getRandomProduct(isFirstTime = true) {
+    if (isFirstTime)
+        pictureIndex = Math.floor(Math.random() * products.length);
+    return products[pictureIndex];
 }
 
 function isUserLoggedIn(name) {
@@ -208,7 +210,11 @@ io.on("connection", (socket) => {
 
     function sendNewProduct(isBroadcast = true) {
         // io.sockets.to(customers[0].id).emit('forceDisconnect');
-        let product = getRandomProduct();
+        let product;
+        if (isBroadcast)
+            product = getRandomProduct();
+        else
+            product = getRandomProduct(false);
         let imageUrl = "/static/products/" + product.file;
         let productJson = {
             image: imageUrl,
