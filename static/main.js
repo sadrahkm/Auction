@@ -127,5 +127,11 @@ $(document).ready(function () {
   socket.on('minNumberOfUsers', () => {
     alert('The auction needs at least 3 people. Auction stopped!');
     window.location.reload();
-  })
+  });
+  socket.on('ping', () => {
+    socket.emit('pong');
+  });
+  socket.on("waitForDelay", () => {
+    $("#start_auction_id").html("لطفا کمی منتظر بمانید...");
+  });
 });

@@ -1,5 +1,6 @@
 const express = require("express");
 let mysql = require('mysql');
+const {use} = require("express/lib/router");
 const app = express();
 const server = require("http").createServer(app);
 const io = require("socket.io")(server, {
@@ -32,12 +33,14 @@ let roundCounter = 0;
 let exitedUsers = [];
 let usersReceivedInformation = [];
 let usersListNotReceived = [];
+let usersListNotEnteredPrice
 let intervalId;
 const AUCTION_TIME = 1; // minutes
 const AUCTION_ROUNDS = 2;
 const MIN_NUMBER_OF_USERS = 3;
 const ROUND_TIME = AUCTION_TIME / AUCTION_ROUNDS; // minutes
 const WAITING_TIME = 10; // seconds
+const NUMBER_OF_PINGS = 10;
 db.connect(function (err) {
     if (err) throw err;
     db.query("SELECT * FROM users", function (err, dbUsers, fields) {
@@ -70,23 +73,52 @@ io.on("connection", (socket) => {
         });
     }
 
-    function checkListStatus(){
-        if (usersListNotReceived.length !== 0) {
-            startTheTimer(WAITING_TIME * 2);
-            while (isTimerWorking && usersListNotReceived.length !== 0) {
-                usersListNotReceived.forEach((user) => {
-                    sendInformationList(user.id);
-                });
+    function pingUsersNotEnteredPrice() {
+        console.log("timer : " + isTimerWorking);
+        return new Promise((resolve) => {
+            setTimeout(() => {
                 setTimeout(() => {
-                    usersListNotReceived = customers.filter(customer => !usersReceivedInformation.some((user) => customer.name === user.name));
-                }, 2000);
-            }
-            if (usersListNotReceived.length !== 0) {
-                usersListNotReceived.forEach((user) => {
-                    io.sockets.to(user.id).emit('forceDisconnect');
-                })
-            }
-        }
+                    isTimerWorking = false;
+                    usersListNotEnteredPrice.forEach((user) => {
+                        console.log("user: " + user.successCount);
+                        if (user.successCount >= NUMBER_OF_PINGS / 2)
+                            io.sockets.to(user.id).emit('forceDisconnect');
+                        resolve();
+                    });
+                    console.log("HAHAaaaaa");
+                }, 4000);
+                if (isTimerWorking) {
+                    usersListNotEnteredPrice.forEach((user) => {
+                        user.successCount = 0;
+                        for (let i = 0; i < NUMBER_OF_PINGS; i++) {
+                            io.sockets.to(user.id).emit('ping');
+                        }
+                    });
+                }
+            }, 3000);
+        })
+    }
+
+    function checkListStatus() {
+        console.log('timer 2 : ' + isTimerWorking);
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                setTimeout(() => {
+                    isTimerWorking = false;
+                    if (usersListNotReceived.length !== 0) {
+                        usersListNotReceived.forEach((user) => {
+                            io.sockets.to(user.id).emit('forceDisconnect');
+                        })
+                        resolve();
+                    }
+                }, 4000);
+                if (isTimerWorking && usersListNotReceived.length !== 0) {
+                    usersListNotReceived.forEach((user) => {
+                        sendInformationList(user.id);
+                    });
+                }
+            }, 3000);
+        });
     }
 
     function waitForTheNextRound() {
@@ -102,18 +134,27 @@ io.on("connection", (socket) => {
     }
 
     async function startTheNextRound() {
-        let difference = customers.filter(user => !information.some((info) => user.name === info.name));
-        difference.forEach((item) => {
-            io.sockets.to(item.id).emit('forceDisconnect');
-        });
+        usersListNotEnteredPrice = customers.filter(user => !information.some((info) => user.name === info.name));
+        // usersListNotEnteredPrice.forEach((item) => {
+        //     io.sockets.to(item.id).emit('forceDisconnect');
+        // });
         sortInformationList();
         sendInformationList();
         information = [];
-        setTimeout(() => {
-            usersListNotReceived = customers.filter(customer => !usersReceivedInformation.some((user) => customer.name === user.name));
-        }, WAITING_TIME / 2);
         await waitForTheNextRound();
-        checkListStatus();
+        usersListNotReceived = customers.filter(customer => !usersReceivedInformation.some((user) => customer.name === user.name));
+        if (usersListNotReceived.length !== 0 || usersListNotEnteredPrice.length !== 0) {
+            io.sockets.emit("waitForDelay");
+            isTimerWorking = true;
+            // console.log("after")
+            // console.log(usersListNotReceived.length)
+            if (usersListNotReceived.length !== 0)
+                await checkListStatus();
+            else
+                await pingUsersNotEnteredPrice();
+            console.log("After")
+        }
+        console.log("After 2")
         startTheRound();
     }
 
@@ -146,8 +187,11 @@ io.on("connection", (socket) => {
     }
 
     async function startTheRound() {
+        console.log("After 3")
         io.sockets.emit("startTheRound");
+        console.log("After 4")
         await startTheTimer(ROUND_TIME * 60);
+        console.log("After 5")
         roundCounter++;
         if (roundCounter >= AUCTION_ROUNDS)
             endTheAuction()
@@ -244,5 +288,12 @@ io.on("connection", (socket) => {
     socket.on("informationReceived", () => {
         let [user] = findUserById(customers, socket.id);
         usersReceivedInformation.push(user);
+        usersListNotReceived = customers.filter(customer => !usersReceivedInformation.some((user) => customer.name === user.name));
     });
+
+    socket.on('pong', () => {
+        let [user, index] = findUserById(usersListNotEnteredPrice, socket.id);
+        user.successCount++;
+
+    })
 });
