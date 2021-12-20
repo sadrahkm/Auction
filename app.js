@@ -71,7 +71,7 @@ io.on("connection", (socket) => {
 
     function sortInformationList() {
         information.sort((a, b) => {
-            return a.price - b.price;
+            return b.price - a.price;
         });
     }
 
