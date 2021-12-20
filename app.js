@@ -175,7 +175,7 @@ io.on("connection", (socket) => {
         sortInformationList();
         sendInformationList();
         await waitForTheNextRound();
-        let {name, price} = information[information.length - 1];
+        let {name, price} = information[0];
         io.sockets.emit('announcingTheWinner', {name: name, price: price});
     }
 
